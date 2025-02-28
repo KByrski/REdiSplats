@@ -1,0 +1,50 @@
+training                      <Model learning phase (0)>
+models/lego                   <Blender data directory path (1)>
+models/lego/lego_iter_100.ply <Pretrained GS model path (2)>
+blender                       <Data format (-1)>
+0              <Start epoch (3)>
+480000         <End epoch>
+0.005          <Learning rate for Gaussian RGB components>
+-0.000086643   <Exponential decay coefficient for learning rate for Gaussian RGB components>
+0.001          <Final value of learning rate for Gaussian RGB components>
+0.125          <Learning rate for Gaussian alpha component>
+-0.000086643   <Exponential decay coefficient for learning rate for Gaussian alpha component>
+0.01           <Final value of learning rate for Gaussian alpha component>
+0.0003         <Learning rate for Gaussian means (4)>
+-0.000086643   <Exponential decay coefficient for learning rate for Gaussian means>
+0.000000306    <Final value of learning rate for Gaussian means (4)>
+0.001          <Learning rate for Gaussian scales (4)>
+0              <Exponential decay coefficient for learning rate for Gaussian scales>
+0.001          <Final value of learning rate for Gaussian scales (4)>
+0.001          <Learning rate for Gaussian quaternions>
+0              <Exponential decay coefficient for learning rate for Gaussian quaternions>
+0.001          <Final value of learning rate for Gaussian quaternions>
+100            <Densification frequency>
+400            <Densification start epoch>
+16000          <Densification end epoch>
+-3.1987        <alpha threshold for Gauss removal>
+0.0000003        <Minimum s coefficients clipping threshold (4)> !!! !!! !!!
+0.05         <Maximum s coefficients clipping threshold (4)>
+0.0005         <Minimum s norm threshold for Gauss removal (4)>
+0.05         <Maximum s norm threshold for Gauss removal (4)>
+0.00014375      <mu gradient norm threshold for densification (4)>
+0.005          <s norm threshold for Gaussian split streategy (4)>
+1.6            <Split ratio for Gaussian split strategy>
+0.25           <Lambda parameter for the cost function>
+0.01   <Ray termination T threshold>
+0.01   <Last significant Gauss alpha gradient precision>
+4.0            <Chi-square squared radius for the Gaussian ellipsoid of confidence> !!!
+128            <Maximum number of Gaussians per ray>
+1000           <Model parameters saving frequency>
+1000           <Model evaluation frequency>
+0              <Model evaluation epoch (5)>
+10000000        <Maximum number of Gaussians per model threshold (6)>
+
+(-1) Can be either "blender" or "colmap".
+(0) Can be either "validation" or "training".
+(1) Since application supports only 24-bit *.bmp file format, all train and test data should be converted to 24-bit *.bmp before use.
+(2) Only models trained with SH degree = 0 are supported.
+(3) If 0, initial parameters are obtained from pretrained model. Otherwise, they are loaded from the proprietary save file.
+(4) ... relative to the value of the scene extent's norm.
+(5) Evaluation is performed during every epoch congruent to <Model evaluation epoch> modulo <Model evaluation frequency>.
+(6) If after gradient update we obtain in total more Gaussians than this number, we stop the densification process. Introduced to prevent the memory overrun.
