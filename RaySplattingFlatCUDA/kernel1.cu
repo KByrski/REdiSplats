@@ -4441,6 +4441,10 @@ void GetSceneBoundsOptiX(float& lB, float& rB, float& uB, float& dB, float& bB, 
 	fB = SortableUint2Float(values.scene_upper_bound.z);
 }
 
+void DumpVertexBuffer(SOptiXRenderParams& params_OptiX, float *vertex_buffer) {
+	cudaMemcpy(vertex_buffer, params_OptiX.Gaussians_as_polygon_vertices, sizeof(float) * params_OptiX.numberOfGaussians * 8 * 3, cudaMemcpyDeviceToHost);
+}
+
 
 
 

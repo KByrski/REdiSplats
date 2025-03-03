@@ -252,6 +252,7 @@ extern bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state);
 
 extern bool SetConfigurationOptiX(SOptiXRenderConfig &config_OptiX);
 extern void GetSceneBoundsOptiX(float& lB, float& rB, float& uB, float& dB, float& bB, float& fB, float &scene_extent_param);
+extern void DumpVertexBuffer(SOptiXRenderParams& params_OptiX, float *vertex_buffer);
 
 extern bool DumpParameters(SOptiXRenderParams& params_OptiX);
 extern bool DumpParametersToPLYFile(SOptiXRenderParams& params_OptiX);

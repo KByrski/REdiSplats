@@ -249,7 +249,6 @@ struct SPLYFileStruct {
 	float opacity;
 	float scale_0;
 	float scale_1;
-	float scale_2;
 	float rot_0;
 	float rot_1;
 	float rot_2;
@@ -786,7 +785,7 @@ void PrepareScene() {
 
 			// *** *** *** *** ***
 
-			int minAxis;
+			/*int minAxis;
 			if (pfs.scale_0 <= pfs.scale_1) {
 				if (pfs.scale_0 <= pfs.scale_2) minAxis = 0;
 				else
@@ -795,7 +794,13 @@ void PrepareScene() {
 				if (pfs.scale_1 <= pfs.scale_2) minAxis = 1;
 				else
 					minAxis = 2;
-			}
+			}*/
+
+			// *** *** *** *** ***
+
+			GC[i].sX = pfs.scale_0; // here you can put everything you want. It will be replaced in the the CUDA initializer with the epsilon.
+			GC[i].sY = pfs.scale_0;
+			GC[i].sZ = pfs.scale_1;
 			
 			// *** *** *** *** ***
 
@@ -850,7 +855,7 @@ void PrepareScene() {
 			qj = qj * invNorm;
 			qk = qk * invNorm;
 
-			switch (minAxis) {
+			/*switch (minAxis) {
 				case 0: {
 					GC[i].sX = pfs.scale_0;
 					GC[i].sY = pfs.scale_1;
@@ -890,7 +895,7 @@ void PrepareScene() {
 
 					break;
 				}
-			}
+			}*/
 
 			GC[i].qr = qr;
 			GC[i].qi = qi;
@@ -1836,6 +1841,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 			result = InitializeOptiXRenderer(params, params_OptiX, true, epochNum);
 			swprintf(consoleBuffer, 256, L"Initializing OptiX renderer: %s", (result ? L"OK... .\n" : L"Failed... .\n"));
 			WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), consoleBuffer, wcslen(consoleBuffer), NULL, NULL);
+
+			/*float *vertex_buffer = (float *)malloc(sizeof(float) * params_OptiX.numberOfGaussians * 8 * 3);
+			DumpVertexBuffer(params_OptiX, vertex_buffer);
+			FILE *f;
+			fopen_s(&f, "vertex_buffer.dump", "wb+");
+			fwrite(vertex_buffer, sizeof(float) * params_OptiX.numberOfGaussians * 8 * 3, 1, f);
+			fclose(f);*/
 
 			result = InitializeOptiXOptimizer(params, params_OptiX, true, epochNum);
 			swprintf(consoleBuffer, 256, L"Initializing OptiX optimizer: %s", (result ? L"OK... .\n" : L"Failed... .\n"));
