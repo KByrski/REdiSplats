@@ -452,10 +452,15 @@ bool InitializeOptiXRenderer(
 
 	if (!loadFromFile) {
 		params_OptiX.numberOfGaussians = params.numberOfGaussians; // !!! !!! !!!
-		if ((epoch + 1 <= densification_end_epoch_host) && (params_OptiX.numberOfGaussians <= max_Gaussians_per_model_host)) // !!! !!! !!!
+		if ((epoch + 1 <= densification_end_epoch_host) && (params_OptiX.numberOfGaussians <= max_Gaussians_per_model_host)) { // !!! !!! !!!
+			params_OptiX.scatterBufferSize = 1; // !!! !!! !!!
+			params_OptiX.maxNumberOfGaussians1 = params_OptiX.numberOfGaussians * 1.125f; // !!! !!! !!!
 			params_OptiX.maxNumberOfGaussians = params_OptiX.numberOfGaussians * 2.25f; // !!! !!! !!!
-		else
+		} else {
+			params_OptiX.scatterBufferSize = 1; // !!! !!! !!!
+			params_OptiX.maxNumberOfGaussians1 = params_OptiX.numberOfGaussians; // !!! !!! !!!
 			params_OptiX.maxNumberOfGaussians = params_OptiX.numberOfGaussians;
+		}
 	} else {
 		FILE *f;
 
@@ -467,10 +472,15 @@ bool InitializeOptiXRenderer(
 		params_OptiX.numberOfGaussians = ftell(f) / sizeof(float4); // !!! !!! !!!
 		fclose(f);
 
-		if ((epoch + 1 <= densification_end_epoch_host) && (params_OptiX.numberOfGaussians <= max_Gaussians_per_model_host)) // !!! !!! !!!
+		if ((epoch + 1 <= densification_end_epoch_host) && (params_OptiX.numberOfGaussians <= max_Gaussians_per_model_host)) { // !!! !!! !!!
+			params_OptiX.scatterBufferSize = 1; // !!! !!! !!!
+			params_OptiX.maxNumberOfGaussians1 = params_OptiX.numberOfGaussians * 1.125f; // !!! !!! !!!
 			params_OptiX.maxNumberOfGaussians = params_OptiX.numberOfGaussians * 2.25f; // !!! !!! !!!
-		else
+		} else {
+			params_OptiX.scatterBufferSize = 1; // !!! !!! !!!
+			params_OptiX.maxNumberOfGaussians1 = params_OptiX.numberOfGaussians; // !!! !!! !!!
 			params_OptiX.maxNumberOfGaussians = params_OptiX.numberOfGaussians;
+		}
 	}
 
 	// *********************************************************************************************
@@ -655,10 +665,10 @@ bool InitializeOptiXRenderer(
 	error_CUDA = cudaMemcpyToSymbol(needsToBeRemoved, &needsToBeRemoved_host, sizeof(int *));
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&Gaussians_indices_after_removal_host, sizeof(int) * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&Gaussians_indices_after_removal_host, sizeof(int) * params_OptiX.scatterBufferSize);
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&scatterBuffer, sizeof(float) * 4 * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&scatterBuffer, sizeof(float) * 4 * params_OptiX.scatterBufferSize);
 	if (error_CUDA != cudaSuccess) goto Error;
 
 	// *********************************************************************************************
@@ -706,14 +716,14 @@ bool InitializeOptiXRenderer(
 	error_CUDA = cudaMemcpy(params_OptiX.Gaussian_as_polygon_indices, Gaussian_as_polygon_indices, sizeof(int3) * 1 * (NUMBER_OF_SIDES - 2), cudaMemcpyHostToDevice);
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_vertices, sizeof(float3) * params_OptiX.maxNumberOfGaussians * NUMBER_OF_SIDES);
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_vertices, sizeof(float3) * params_OptiX.maxNumberOfGaussians1 * NUMBER_OF_SIDES); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
 	UpdateGaussiansPoligonsVertices<<<((params_OptiX.numberOfGaussians * NUMBER_OF_SIDES) + 63) >> 6, 64>>>(params_OptiX);
 	error_CUDA = cudaGetLastError();
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_indices, sizeof(int3) * params_OptiX.maxNumberOfGaussians * (NUMBER_OF_SIDES - 2));
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_indices, sizeof(int3) * params_OptiX.maxNumberOfGaussians1 * (NUMBER_OF_SIDES - 2)); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
 	UpdateGaussiansPoligonsIndices<<<((params_OptiX.numberOfGaussians * (NUMBER_OF_SIDES - 2)) + 63) >> 6, 64>>>(params_OptiX);
@@ -883,16 +893,16 @@ bool InitializeOptiXOptimizer(
 	error_CUDA = cudaMalloc(&params_OptiX.bitmap_ref, sizeof(unsigned) * params_OptiX.width * params_OptiX.height * params.NUMBER_OF_POSES);
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_1, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_1, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_2, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_2, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_3, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_3, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_4, sizeof(REAL2_G) * params_OptiX.maxNumberOfGaussians);
+	error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_4, sizeof(REAL2_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 	if (error_CUDA != cudaSuccess) goto Error;
 
 	error_CUDA = cudaMalloc(&params_OptiX.loss_device, sizeof(double) * 1);
@@ -3886,6 +3896,10 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 	) {
 		error_CUDA = cudaMemset(params_OptiX.counter1, 0, sizeof(unsigned) * 1);
 		if (error_CUDA != cudaSuccess) goto Error;
+
+		// !!! !!! !!! EXPERIMENTAL !!! !!! !!!
+		cuMemsetD32(((CUdeviceptr)needsToBeRemoved_host), 1, params_OptiX.numberOfGaussians * 2);
+		// !!! !!! !!! EXPERIMENTAL !!! !!! !!!
 	}
 
 	// DEBUG GRADIENT
@@ -3896,10 +3910,6 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 	// !!! !!! !!!
 	error_CUDA = cudaMemcpyToSymbol(auxiliary_values, &initial_values, sizeof(SAuxiliaryValues) * 1);
 	if (error_CUDA != cudaSuccess) goto Error;
-
-	// !!! !!! !!! EXPERIMENTAL !!! !!! !!!
-	cuMemsetD32(((CUdeviceptr)needsToBeRemoved_host), 1, params_OptiX.numberOfGaussians * 2);
-	// !!! !!! !!! EXPERIMENTAL !!! !!! !!!
 
 	dev_UpdateGradientOptiX<<<(params_OptiX.numberOfGaussians + 63) >> 6, 64>>>(params_OptiX);
 	error_CUDA = cudaGetLastError();
@@ -3934,6 +3944,24 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 
 		params_OptiX.numberOfGaussians += numberOfNewGaussians; // !!! !!! !!!
 
+		// !!! !!! !!!
+		if (params_OptiX.numberOfGaussians > params_OptiX.scatterBufferSize) {
+			params_OptiX.scatterBufferSize = params_OptiX.numberOfGaussians * 1.125f; // !!! !!! !!!
+
+			error_CUDA = cudaFree(Gaussians_indices_after_removal_host);
+			if (error_CUDA != cudaSuccess) goto Error;
+
+			error_CUDA = cudaFree(scatterBuffer);
+			if (error_CUDA != cudaSuccess) goto Error;
+
+			error_CUDA = cudaMalloc(&Gaussians_indices_after_removal_host, sizeof(int) * params_OptiX.scatterBufferSize);
+			if (error_CUDA != cudaSuccess) goto Error;
+
+			error_CUDA = cudaMalloc(&scatterBuffer, sizeof(float) * 4 * params_OptiX.scatterBufferSize);
+			if (error_CUDA != cudaSuccess) goto Error;
+		}
+		// !!! !!! !!!
+
 		thrust::exclusive_scan(
 			thrust::device_pointer_cast(needsToBeRemoved_host),
 			thrust::device_pointer_cast(needsToBeRemoved_host) + params_OptiX.numberOfGaussians,
@@ -3947,13 +3975,12 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 
 		// ************************************************************************************************
 
-		bool needsToReallocMemory = false;
-		if (
-			((numberOfGaussiansNew * 2) > params_OptiX.maxNumberOfGaussians) && 
-			(numberOfGaussiansNew <= max_Gaussians_per_model_host)
-		) {
-			needsToReallocMemory = true;
-			params_OptiX.maxNumberOfGaussians = numberOfGaussiansNew * 2.25f; // !!! !!! !!!
+		// !!! !!! !!!
+		if (numberOfGaussiansNew > params_OptiX.maxNumberOfGaussians1) {
+			if (numberOfGaussiansNew <= max_Gaussians_per_model_host)
+				params_OptiX.maxNumberOfGaussians1 = numberOfGaussiansNew * 1.125f; // !!! !!! !!!
+			else
+				params_OptiX.maxNumberOfGaussians1 = numberOfGaussiansNew; // !!! !!! !!!
 
 			error_CUDA = cudaFree(params_OptiX.dL_dparams_1);
 			if (error_CUDA != cudaSuccess) goto Error;
@@ -3973,24 +4000,36 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 			error_CUDA = cudaFree(params_OptiX.Gaussians_as_polygon_indices);
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_1, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_1, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_2, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_2, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_3, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians);
+			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_3, sizeof(REAL4_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_4, sizeof(REAL2_G) * params_OptiX.maxNumberOfGaussians);
+			error_CUDA = cudaMalloc(&params_OptiX.dL_dparams_4, sizeof(REAL2_G) * params_OptiX.maxNumberOfGaussians1); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_vertices, sizeof(float3) * params_OptiX.maxNumberOfGaussians * NUMBER_OF_SIDES);
+			error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_vertices, sizeof(float3) * params_OptiX.maxNumberOfGaussians1 * NUMBER_OF_SIDES); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 
-			error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_indices, sizeof(int3) * params_OptiX.maxNumberOfGaussians * (NUMBER_OF_SIDES - 2));
+			error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_indices, sizeof(int3) * params_OptiX.maxNumberOfGaussians1 * (NUMBER_OF_SIDES - 2)); // !!! !!! !!!
 			if (error_CUDA != cudaSuccess) goto Error;
 		}
+		// !!! !!! !!!
+
+		// !!! !!! !!!
+		bool needsToReallocMemory = false;
+		if (
+			((numberOfGaussiansNew * 2) > params_OptiX.maxNumberOfGaussians) && 
+			(numberOfGaussiansNew <= max_Gaussians_per_model_host)
+		) {
+			needsToReallocMemory = true;
+			params_OptiX.maxNumberOfGaussians = numberOfGaussiansNew * 2.25f; // !!! !!! !!!
+		}
+		// !!! !!! !!!
 		
 		// GC
 		thrust::scatter_if(
@@ -4187,14 +4226,9 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 		}
 		cudaMemcpy(params_OptiX.v41, scatterBuffer, sizeof(float2) * numberOfGaussiansNew, cudaMemcpyDeviceToDevice);
 
+		// !!! !!! !!!
 		if (needsToReallocMemory) {
 			error_CUDA = cudaFree(needsToBeRemoved_host);
-			if (error_CUDA != cudaSuccess) goto Error;
-
-			error_CUDA = cudaFree(Gaussians_indices_after_removal_host);
-			if (error_CUDA != cudaSuccess) goto Error;
-
-			error_CUDA = cudaFree(scatterBuffer);
 			if (error_CUDA != cudaSuccess) goto Error;
 
 			error_CUDA = cudaMalloc(&needsToBeRemoved_host, sizeof(int) * params_OptiX.maxNumberOfGaussians);
@@ -4202,13 +4236,8 @@ bool UpdateGradientOptiX(SOptiXRenderParams& params_OptiX, int &state) {
 
 			error_CUDA = cudaMemcpyToSymbol(needsToBeRemoved, &needsToBeRemoved_host, sizeof(int *));
 			if (error_CUDA != cudaSuccess) goto Error;
-
-			error_CUDA = cudaMalloc(&Gaussians_indices_after_removal_host, sizeof(int) * params_OptiX.maxNumberOfGaussians);
-			if (error_CUDA != cudaSuccess) goto Error;
-
-			error_CUDA = cudaMalloc(&scatterBuffer, sizeof(float) * 4 * params_OptiX.maxNumberOfGaussians);
-			if (error_CUDA != cudaSuccess) goto Error;
 		}
+		// !!! !!! !!!
 
 		params_OptiX.numberOfGaussians = numberOfGaussiansNew;
 		// !!! !!! !!! EXPERIMENTAL !!! !!! !!!

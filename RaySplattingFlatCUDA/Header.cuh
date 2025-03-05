@@ -152,6 +152,8 @@ struct SOptiXRenderParams {
 	void *hitgroupRecordsBuffer;
 
 	int numberOfGaussians;
+	int scatterBufferSize; // !!! !!! !!!
+	int maxNumberOfGaussians1; // !!! !!! !!!
 	int maxNumberOfGaussians;
 
 	void *aabbBuffer;
