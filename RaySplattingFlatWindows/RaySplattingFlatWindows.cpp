@@ -1832,7 +1832,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
 			epochNum = config.start_epoch;
 
-			result = InitializeOptiXRendererMesh(params[0], params_OptiX, scene, params_OptiXMesh, true, epochNum);
+			result = InitializeOptiXRendererMesh(params, params_OptiX, scene, params_OptiXMesh, true, epochNum);
 			swprintf(consoleBuffer, 256, L"Initializing OptiX renderer: %s", (result ? L"OK... .\n" : L"Failed... .\n"));
 			WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), consoleBuffer, wcslen(consoleBuffer), NULL, NULL);
 		#else

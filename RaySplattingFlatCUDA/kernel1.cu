@@ -618,29 +618,6 @@ bool InitializeOptiXRenderer(
 
 	
 	for (int i = 0; i < params_OptiX.numberOfGaussians; ++i) {
-		float aa = GC_part_3[i].z * GC_part_3[i].z;
-		float bb = GC_part_3[i].w * GC_part_3[i].w;
-		float cc = GC_part_4[i].x * GC_part_4[i].x;
-		float dd = GC_part_4[i].y * GC_part_4[i].y;
-		float s = 2.0f / (aa + bb + cc + dd);
-
-		float bs = GC_part_3[i].w * s;  float cs = GC_part_4[i].x * s;  float ds = GC_part_4[i].y * s;
-		float ab = GC_part_3[i].z * bs; float ac = GC_part_3[i].z * cs; float ad = GC_part_3[i].z * ds;
-		bb = bb * s;                    float bc = GC_part_3[i].w * cs; float bd = GC_part_3[i].w * ds;
-		cc = cc * s;                    float cd = GC_part_4[i].x * ds;       dd = dd * s;
-
-		float Q11 = 1.0f - cc - dd;
-		float Q12 = bc - ad;
-		float Q13 = bd + ac;
-
-		float Q21 = bc + ad;
-		float Q22 = 1.0f - bb - dd;
-		float Q23 = cd - ab;
-
-		float Q31 = bd - ac;
-		float Q32 = cd + ab;
-		float Q33 = 1.0f - bb - cc;
-
 		// OLD INVERSE SIGMOID ACTIVATION FUNCTION FOR SCALE PARAMETERS
 		/*float sX = 1.0f / (1.0f + expf(-GC_part_2[i].w));
 		float sY = 1.0f / (1.0f + expf(-GC_part_3[i].x));
@@ -4647,8 +4624,8 @@ bool InitializeOptiXRendererMesh(
 	pgDesc_hitgroup.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
 	pgDesc_hitgroup.hitgroup.moduleCH            = module;           
 	pgDesc_hitgroup.hitgroup.entryFunctionNameCH = "__closesthit__radiance";
-	pgDesc_hitgroup.hitgroup.moduleIS            = module;
-	pgDesc_hitgroup.hitgroup.entryFunctionNameIS = "__intersection__is";
+	//pgDesc_hitgroup.hitgroup.moduleIS            = module;
+	//pgDesc_hitgroup.hitgroup.entryFunctionNameIS = "__intersection__is";
 
 	OptixProgramGroupDesc pgDesc_hitgroup_Tri = {};
 	pgDesc_hitgroup_Tri.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
@@ -4805,7 +4782,20 @@ bool InitializeOptiXRendererMesh(
 
 	// *********************************************************************************************
 
-	float *aabbs = (float *)malloc(sizeof(float) * 6 * params_OptiX.numberOfGaussians);
+	// !!! !!! !!! TRIANGLES !!! !!! !!!
+	float2 *Gaussian_as_polygon_vertices = (float2 *)malloc(sizeof(float2) * 1 * NUMBER_OF_SIDES);
+	int3 *Gaussian_as_polygon_indices = (int3 *)malloc(sizeof(int3) * 1 * (NUMBER_OF_SIDES - 2));
+
+	for (int i = 0; i < NUMBER_OF_SIDES; ++i)
+		Gaussian_as_polygon_vertices[i] = make_float2(
+			cosf(i * ((2.0f * M_PI) / NUMBER_OF_SIDES)) * sqrtf(chi_square_squared_radius_host),
+			sinf(i * ((2.0f * M_PI) / NUMBER_OF_SIDES)) * sqrtf(chi_square_squared_radius_host)
+		);
+	for (int i = 0; i < NUMBER_OF_SIDES - 2; ++i)
+		Gaussian_as_polygon_indices[i] = make_int3(0, i + 1, i + 2);
+	// !!! !!! !!! TRIANGLES !!! !!! !!!
+
+	// *********************************************************************************************
 
 	SAuxiliaryValues auxiliary_values_local;
 	auxiliary_values_local.scene_lower_bound = initial_values.scene_lower_bound;
@@ -4837,52 +4827,53 @@ bool InitializeOptiXRendererMesh(
 		float Q32 = cd + ab;
 		float Q33 = 1.0f - bb - cc;
 
-		float sX = 1.0f / (1.0f + expf(-GC_part_2[i].w));
-		float sY = 1.0f / (1.0f + expf(-GC_part_3[i].x));
-		float sZ = 1.0f / (1.0f + expf(-GC_part_3[i].y));
+		// NEW EXPONENTIAL ACTIVATION FUNCTION FOR SCALE PARAMETERS
+		float sX = expf(GC_part_2[i].w);
+		float sY = expf(GC_part_3[i].x);
+		float sZ = expf(GC_part_3[i].y);
 
 		float tmpX = sqrtf(chi_square_squared_radius_host * ((sX * sX * Q11 * Q11) + (sY * sY * Q12 * Q12) + (sZ * sZ * Q13 * Q13)));
 		float tmpY = sqrtf(chi_square_squared_radius_host * ((sX * sX * Q21 * Q21) + (sY * sY * Q22 * Q22) + (sZ * sZ * Q23 * Q23)));
 		float tmpZ = sqrtf(chi_square_squared_radius_host * ((sX * sX * Q31 * Q31) + (sY * sY * Q32 * Q32) + (sZ * sZ * Q33 * Q33)));
 
-		aabbs[(i * 6) + 0] = GC_part_2[i].x - tmpX; // !!! !!! !!!
-		aabbs[(i * 6) + 3] = GC_part_2[i].x + tmpX; // !!! !!! !!!
+		float lB = GC_part_2[i].x - tmpX; // !!! !!! !!!
+		float rB = GC_part_2[i].x + tmpX; // !!! !!! !!!
 
-		aabbs[(i * 6) + 1] = GC_part_2[i].y - tmpY; // !!! !!! !!!
-		aabbs[(i * 6) + 4] = GC_part_2[i].y + tmpY; // !!! !!! !!!
+		float uB = GC_part_2[i].y - tmpY; // !!! !!! !!!
+		float dB = GC_part_2[i].y + tmpY; // !!! !!! !!!
 
-		aabbs[(i * 6) + 2] = GC_part_2[i].z - tmpZ; // !!! !!! !!!
-		aabbs[(i * 6) + 5] = GC_part_2[i].z + tmpZ; // !!! !!! !!!
+		float bB = GC_part_2[i].z - tmpZ; // !!! !!! !!!
+		float fB = GC_part_2[i].z + tmpZ; // !!! !!! !!!
 
 		auxiliary_values_local.scene_lower_bound.x = (
-			(Float2SortableUint(aabbs[(i * 6) + 0]) < auxiliary_values_local.scene_lower_bound.x) ?
-			Float2SortableUint(aabbs[(i * 6) + 0]) :
+			(Float2SortableUint(lB) < auxiliary_values_local.scene_lower_bound.x) ?
+			Float2SortableUint(lB) :
 			auxiliary_values_local.scene_lower_bound.x
 			);
 		auxiliary_values_local.scene_lower_bound.y = (
-			(Float2SortableUint(aabbs[(i * 6) + 1]) < auxiliary_values_local.scene_lower_bound.y) ?
-			Float2SortableUint(aabbs[(i * 6) + 1]) :
+			(Float2SortableUint(uB) < auxiliary_values_local.scene_lower_bound.y) ?
+			Float2SortableUint(uB) :
 			auxiliary_values_local.scene_lower_bound.y
 			);
 		auxiliary_values_local.scene_lower_bound.z = (
-			(Float2SortableUint(aabbs[(i * 6) + 2]) < auxiliary_values_local.scene_lower_bound.z) ?
-			Float2SortableUint(aabbs[(i * 6) + 2]) :
+			(Float2SortableUint(bB) < auxiliary_values_local.scene_lower_bound.z) ?
+			Float2SortableUint(bB) :
 			auxiliary_values_local.scene_lower_bound.z
 			);
 
 		auxiliary_values_local.scene_upper_bound.x = (
-			(Float2SortableUint(aabbs[(i * 6) + 3]) > auxiliary_values_local.scene_upper_bound.x) ?
-			Float2SortableUint(aabbs[(i * 6) + 3]) :
+			(Float2SortableUint(rB) > auxiliary_values_local.scene_upper_bound.x) ?
+			Float2SortableUint(rB) :
 			auxiliary_values_local.scene_upper_bound.x
 			);
 		auxiliary_values_local.scene_upper_bound.y = (
-			(Float2SortableUint(aabbs[(i * 6) + 4]) > auxiliary_values_local.scene_upper_bound.y) ?
-			Float2SortableUint(aabbs[(i * 6) + 4]) :
+			(Float2SortableUint(dB) > auxiliary_values_local.scene_upper_bound.y) ?
+			Float2SortableUint(dB) :
 			auxiliary_values_local.scene_upper_bound.y
 			);
 		auxiliary_values_local.scene_upper_bound.z = (
-			(Float2SortableUint(aabbs[(i * 6) + 5]) > auxiliary_values_local.scene_upper_bound.z) ?
-			Float2SortableUint(aabbs[(i * 6) + 5]) :
+			(Float2SortableUint(fB) > auxiliary_values_local.scene_upper_bound.z) ?
+			Float2SortableUint(fB) :
 			auxiliary_values_local.scene_upper_bound.z
 			);
 	}
@@ -4895,21 +4886,23 @@ bool InitializeOptiXRendererMesh(
 
 	
 	for (int i = 0; i < params_OptiX.numberOfGaussians; ++i) {
-		float sX = 1.0f / (1.0f + expf(-GC_part_2[i].w));
-		float sY = 1.0f / (1.0f + expf(-GC_part_3[i].x));
-		float sZ = 1.0f / (1.0f + expf(-GC_part_3[i].y));
+		// NEW EXPONENTIAL ACTIVATION FUNCTION FOR SCALE PARAMETERS
+		float sX = expf(GC_part_2[i].w);
+		float sY = expf(GC_part_3[i].x);
+		float sZ = expf(GC_part_3[i].y);
 
-		sX = ((sX < scene_extent_local * min_s_coefficients_clipping_threshold_host) ? scene_extent_local * min_s_coefficients_clipping_threshold_host : sX);
+		//sX = ((sX < scene_extent_local * min_s_coefficients_clipping_threshold_host) ? scene_extent_local * min_s_coefficients_clipping_threshold_host : sX); // !!! !!! !!!
 		sY = ((sY < scene_extent_local * min_s_coefficients_clipping_threshold_host) ? scene_extent_local * min_s_coefficients_clipping_threshold_host : sY);
 		sZ = ((sZ < scene_extent_local * min_s_coefficients_clipping_threshold_host) ? scene_extent_local * min_s_coefficients_clipping_threshold_host : sZ);
 
-		sX = ((sX > scene_extent_local * max_s_coefficients_clipping_threshold_host) ? scene_extent_local * max_s_coefficients_clipping_threshold_host : sX);
+		//sX = ((sX > scene_extent_local * max_s_coefficients_clipping_threshold_host) ? scene_extent_local * max_s_coefficients_clipping_threshold_host : sX); // !!! !!! !!!
 		sY = ((sY > scene_extent_local * max_s_coefficients_clipping_threshold_host) ? scene_extent_local * max_s_coefficients_clipping_threshold_host : sY);
 		sZ = ((sZ > scene_extent_local * max_s_coefficients_clipping_threshold_host) ? scene_extent_local * max_s_coefficients_clipping_threshold_host : sZ);
 
-		GC_part_2[i].w = -logf((1.0f / sX) - 1.0f);
-		GC_part_3[i].x = -logf((1.0f / sY) - 1.0f);
-		GC_part_3[i].y = -logf((1.0f / sZ) - 1.0f);
+		// NEW EXPONENTIAL ACTIVATION FUNCTION FOR SCALE PARAMETERS
+		GC_part_2[i].w = logf(scene_extent_local * 0.00001f);
+		GC_part_3[i].x = logf(sY);
+		GC_part_3[i].y = logf(sZ);
 	}
 
 	/**********************************************************************************************/
@@ -5022,10 +5015,30 @@ bool InitializeOptiXRendererMesh(
 
 	// *********************************************************************************************
 
-	error_CUDA = cudaMalloc(&params_OptiX.aabbBuffer, sizeof(float) * 6 * params_OptiX.numberOfGaussians); // !!! !!! !!!
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussian_as_polygon_vertices, sizeof(float2) * 1 * NUMBER_OF_SIDES);
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	error_CUDA = cudaMemcpy(params_OptiX.aabbBuffer, aabbs, sizeof(float) * 6 * params_OptiX.numberOfGaussians, cudaMemcpyHostToDevice);
+	error_CUDA = cudaMemcpy(params_OptiX.Gaussian_as_polygon_vertices, Gaussian_as_polygon_vertices, sizeof(float2) * 1 * NUMBER_OF_SIDES, cudaMemcpyHostToDevice);
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussian_as_polygon_indices, sizeof(int3) * 1 * (NUMBER_OF_SIDES - 2));
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	error_CUDA = cudaMemcpy(params_OptiX.Gaussian_as_polygon_indices, Gaussian_as_polygon_indices, sizeof(int3) * 1 * (NUMBER_OF_SIDES - 2), cudaMemcpyHostToDevice);
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_vertices, sizeof(float3) * params_OptiX.numberOfGaussians * NUMBER_OF_SIDES);
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	UpdateGaussiansPoligonsVertices<<<((params_OptiX.numberOfGaussians * NUMBER_OF_SIDES) + 63) >> 6, 64>>>(params_OptiX);
+	error_CUDA = cudaGetLastError();
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	error_CUDA = cudaMalloc(&params_OptiX.Gaussians_as_polygon_indices, sizeof(int3) * params_OptiX.numberOfGaussians * (NUMBER_OF_SIDES - 2));
+	if (error_CUDA != cudaSuccess) goto Error;
+
+	UpdateGaussiansPoligonsIndices<<<((params_OptiX.numberOfGaussians * (NUMBER_OF_SIDES - 2)) + 63) >> 6, 64>>>(params_OptiX);
+	error_CUDA = cudaGetLastError();
 	if (error_CUDA != cudaSuccess) goto Error;
 
 	error_CUDA = cudaMemcpyToSymbol(auxiliary_values, &auxiliary_values_local, sizeof(SAuxiliaryValues) * 1);
@@ -5034,7 +5047,8 @@ bool InitializeOptiXRendererMesh(
 	error_CUDA = cudaMemcpyToSymbol(scene_extent, &scene_extent_local, sizeof(float) * 1);
 	if (error_CUDA != cudaSuccess) goto Error;
 
-	free(aabbs);
+	free(Gaussian_as_polygon_vertices);
+	free(Gaussian_as_polygon_indices);
 
 	// *********************************************************************************************
 
@@ -5042,6 +5056,23 @@ bool InitializeOptiXRendererMesh(
 	accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
 	accel_options.operation  = OPTIX_BUILD_OPERATION_BUILD;
 
+	// !!! !!! !!! TRIANGLES !!! !!! !!!
+	OptixBuildInput aabb_input = {};
+	aabb_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+	aabb_input.triangleArray.vertexBuffers = (CUdeviceptr *)&params_OptiX.Gaussians_as_polygon_vertices;
+	aabb_input.triangleArray.numVertices = params_OptiX.numberOfGaussians * NUMBER_OF_SIDES;
+	aabb_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
+	aabb_input.triangleArray.indexBuffer = (CUdeviceptr)params_OptiX.Gaussians_as_polygon_indices;
+	aabb_input.triangleArray.numIndexTriplets = params_OptiX.numberOfGaussians * (NUMBER_OF_SIDES - 2);
+	aabb_input.triangleArray.indexFormat = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+
+	int *aabb_input_flags[1] = {0};
+	aabb_input.triangleArray.flags         = (const unsigned int *)aabb_input_flags;
+	aabb_input.triangleArray.numSbtRecords = 1;
+	// !!! !!! !!! TRIANGLES !!! !!! !!!
+
+	// Gaussians
+	/*
 	OptixBuildInput aabb_input = {};
 	aabb_input.type                               = OPTIX_BUILD_INPUT_TYPE_CUSTOM_PRIMITIVES;
 	aabb_input.customPrimitiveArray.aabbBuffers   = (CUdeviceptr *)&params_OptiX.aabbBuffer;
@@ -5050,6 +5081,7 @@ bool InitializeOptiXRendererMesh(
 	unsigned aabb_input_flags[1]                  = {OPTIX_GEOMETRY_FLAG_NONE};
 	aabb_input.customPrimitiveArray.flags         = (const unsigned int *)aabb_input_flags;
 	aabb_input.customPrimitiveArray.numSbtRecords = 1;
+	*/
 
 	// *********************************************************************************************
 

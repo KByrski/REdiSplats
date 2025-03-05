@@ -1,6 +1,6 @@
 training                      <Model learning phase (0)>
 models/lego                   <Blender data directory path (1)>
-models/lego/lego_iter_100.ply <Pretrained GS model path (2)>
+models/lego/lego_100.ply <Pretrained GS model path (2)>
 blender                       <Data format (-1)>
 0              <Start epoch (3)>
 480000         <End epoch>
@@ -27,13 +27,13 @@ blender                       <Data format (-1)>
 0.05         <Maximum s coefficients clipping threshold (4)>
 0.0005         <Minimum s norm threshold for Gauss removal (4)>
 0.05         <Maximum s norm threshold for Gauss removal (4)>
-0.00014375      <mu gradient norm threshold for densification (4)>
+0.00014      <mu gradient norm threshold for densification (4)>
 0.005          <s norm threshold for Gaussian split streategy (4)>
 1.6            <Split ratio for Gaussian split strategy>
 0.25           <Lambda parameter for the cost function>
 0.01   <Ray termination T threshold>
 0.01   <Last significant Gauss alpha gradient precision>
-4.0            <Chi-square squared radius for the Gaussian ellipsoid of confidence> !!!
+13.2767            <Chi-square squared radius for the Gaussian ellipsoid of confidence> !!!
 128            <Maximum number of Gaussians per ray>
 1000           <Model parameters saving frequency>
 1000           <Model evaluation frequency>
