@@ -5,7 +5,7 @@ Krzysztof Byrski, Grzegorz Wilczyński1, Weronika Smolak-Dyżewska, Piotr Boryck
 | :---- |
 | REdiSplats: Ray Tracing for Editable Gaussian Splatting [https://arxiv.org/pdf/???](http://arxiv.org/abs/???)|
 
-<img src=assets/lego_blender_water.mp4 height="300" class="center"> 
+<img src=assets/lego_blender_water.gif height="300" class="center"> 
 <br>
 
 1. Prerequisites:
