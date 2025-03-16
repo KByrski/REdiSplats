@@ -1,3 +1,12 @@
+# REdiSplats: Ray Tracing for Editable Gaussian Splatting
+Krzysztof Byrski, Grzegorz Wilczyński1, Weronika Smolak-Dyżewska, Piotr Borycki, Dawid Baran, Sławomir Tadeja2, Przemysław Spurek <br>
+
+| arXiv |
+| :---- |
+| REdiSplats: Ray Tracing for Editable Gaussian Splatting [https://arxiv.org/pdf/???](http://arxiv.org/abs/???)|
+
+
+
 1. Prerequisites:
 -----------------
 - Install Visual Studio 2019 Enterprise;
