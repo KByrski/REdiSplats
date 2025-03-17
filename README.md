@@ -7,7 +7,7 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 
 | ![](assets/ficus.gif) | ![](assets/lego_blender.gif) | ![](assets/lego_viewer.gif) |
 |--------------|--------------|--------------|
-| ![](assets/lego_blender_water.gif) | ![](assets/fox_short.gif) | ![](assets/glasses_shadow.gif) |
+| ![](assets/lego_blender_water.gif) | ![](assets/fox_up_down.gif) | ![](assets/glasses_shadow.gif) |
 
 
 
