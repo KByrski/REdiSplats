@@ -1,5 +1,5 @@
 # REdiSplats: Ray Tracing for Editable Gaussian Splatting
-Krzysztof Byrski, Grzegorz Wilczyński1, Weronika Smolak-Dyżewska, Piotr Borycki, Dawid Baran, Sławomir Tadeja2, Przemysław Spurek <br>
+Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki, Dawid Baran, Sławomir Tadeja, Przemysław Spurek <br>
 
 | arXiv |
 | :---- |
@@ -7,10 +7,8 @@ Krzysztof Byrski, Grzegorz Wilczyński1, Weronika Smolak-Dyżewska, Piotr Boryck
 
 | ![](assets/ficus.gif) | ![](assets/lego_blender.gif) | ![](assets/lego_viewer.gif) |
 |--------------|--------------|--------------|
+| ![](assets/lego_blender_water.gif) | ![](assets/fox_short.gif) | ![](assets/glasses_shadow.gif) |
 
-<p align="center">
-  <img src="assets/lego_blender_water.gif" width="50%">
-</p>
 
 
 1. Prerequisites:
