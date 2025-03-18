@@ -3,7 +3,7 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 
 | arXiv |
 | :---- |
-| REdiSplats: Ray Tracing for Editable Gaussian Splatting [https://arxiv.org/pdf/???](http://arxiv.org/abs/???)|
+| REdiSplats: Ray Tracing for Editable Gaussian Splatting [https://arxiv.org/pdf/2503.12284](http://arxiv.org/abs/2503.12284)|
 
 | ![](assets/ficus.gif) | ![](assets/lego_blender.gif) | ![](assets/lego_viewer.gif) |
 |--------------|--------------|--------------|
