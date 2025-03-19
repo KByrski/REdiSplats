@@ -11,13 +11,13 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 
 
 
-1. Prerequisites:
+## Prerequisites:
 -----------------
 - Install Visual Studio 2019 Enterprise;
 - Install CUDA Toolkit 12.4.1;
 - Install NVIDIA OptiX SDK 8.0.0;
 
-2. Compiling the CUDA static library:
+## Compiling the CUDA static library:
 ------------------------------------
 - Create the new CUDA 12.4 Runtime project and name it "RaySplattingFlatCUDA";
 - Remove the newly created kernel.cu file with the code template;
@@ -53,7 +53,7 @@ On our test system, we used the following paths as the string literal passed to 
 
 - Build the project;
 
-3. Compiling the Windows interactive optimizer application:
+## Compiling the Windows interactive optimizer application:
 -----------------------------------------------------------
 - Create the new Windows Desktop Application project and name it "RaySplattingFlatWindows";
 - Remove the newly generated RaySplattingFlatWindows.cpp file with the code template;
@@ -74,7 +74,7 @@ On our test system, we used the following paths as the string literal passed to 
 
 "C:\Users\\\<Windows username>\source\repos\RaySplattingFlatCUDA\x64\Release"
 
-4. Training the first model:
+## Training the first model:
 ----------------------------
 - Create the directory "dump" in the main RaySplattingFlatWindows project's directory and then create the subdirectory "dump\save" in the main RaySplattingFlatWindows project's directory. The application will store the checkpoints here. On our test system we created those directories in the following directory:
 
@@ -90,3 +90,63 @@ On our test system, we used the following paths as the string literal passed to 
 
 - In lines: 2 and 3 of the configuration file specify the location of the dataset main directory and the output GaMeS *.ply file obtained after short model pretraining;
 - Run the "RaySplattingFlatWindows" project from the Visual Studio IDE;
+
+# Scripts
+Scripts directory contains different scripts that allows to manipulate trained models.
+
+### Setting up the environment
+1. First create your conda environment
+2. Install pytorch with CUDA support
+```bash
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+```
+3. Install Nvdiffrast
+```bash
+pip install ninja imageio PyOpenGL glfw xatlas gdown
+pip install git+https://github.com/NVlabs/nvdiffrast/
+```
+4. Install other dependencies
+```bash
+pip install -r requirements.txt
+```
+## generate_mesh.py
+This script allows you to get the MeshSplat representation of ReDiSplats model. Output is saved as a `.npz` file, it's output path is `/path/to/ply/meshsplat.npz`.
+
+### Usage
+```bash
+python generate_mesh.py <ply_path> --opac_threshold <opac_thresh_val> --quant <quant_val>
+```
+where:
+- `ply_path` - path to the input PLY file
+- `opac_thresh_val` - opacity threshold for the mesh (e.g. if opac_thresh_val=0.5, only Gaussians with opacity greater than 0.5 will be used to generate the mesh), default value is 0.5
+- `quant_val` - quantile value (the bigger the larger the MeshSplat size), default value is 4.0
+
+## render_blender.py
+This script allows you to render the MeshSplat representation of ReDiSplats model using Blender. Of course you have to have installed Blender already.
+
+### Usage
+```bash
+blender --background --python path/to/render_blender.py -- --npz_path <path_to_npz_file> --cam_path <path_to_cameras_file>
+```
+where:
+- `--npz_path` - path to the input `.npz` file
+- `--cam_path` - path to the input cameras file
+
+## render_nvdiffrast.py
+This script allows you to render the MeshSplat representation of ReDiSplats model using Nvdiffrast.
+
+### Usage
+```bash
+python render_nvdiffrast.py <npz_path> <cameras_path> --dp_layers <dp_layers_val>
+```
+where:
+- `<npz_path>` - path to the input `.npz` file
+- `<cameras_path>` - path to the input cameras file. If this is a path to a `.json` file, then the script will assume you are using Blender dataset. If it's a path to a dataset, then the script will assume you are using Colmap dataset.
+- `<dp_layers_val>` - number of depth peeling layers, default value is 50. For NeRF Synthetic datasets use 50, for real scenes use at least 100 (recommended is 200).
+
+
+
+
+
+
+
