@@ -121,6 +121,19 @@ where:
 - `opac_thresh_val` - opacity threshold for the mesh (e.g. if opac_thresh_val=0.5, only Gaussians with opacity greater than 0.5 will be used to generate the mesh), default value is 0.5
 - `quant_val` - quantile value (the bigger the larger the MeshSplat size), default value is 4.0
 
+## convert.py
+This script allows you to get the Gaussian representation of ReDiSplats model from collection of frames `.obj` files. Output for each frame is saved as a `.ply` file.
+
+### Usage
+```bash
+python convert.py --ply_path <ply_path> --output_path <output_path> --frames_path <frames_path> --quant <quant_val>
+```
+where:
+- `ply_path` - path to the original PLY file
+- `output_path` - path where the calculated `.ply` files for each frame should be saved
+- `frames_path` - path to the directory where `.obj` files are stored
+- `quant_val` - quantile value (the bigger the larger the MeshSplat size), default value is 4.0
+
 ## render_blender.py
 This script allows you to render the MeshSplat representation of ReDiSplats model using Blender. Of course you have to have installed Blender already.
 
