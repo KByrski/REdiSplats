@@ -88,22 +88,23 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
   ```
   replace the provided path with the path to the *.ptx compiled shaders files on your hdd.
 
-## Training the first model:
-----------------------------
-- Create the directory "dump" in the main RaySplattingFlatWindows project's directory and then create the subdirectory "dump\save" in the main RaySplattingFlatWindows project's directory. The application will store the checkpoints here. On our test system we created those directories in the following directory:
+# Training your first model (Blender dataset):
 
-"C:\Users\\\<Windows username>\source\repos\RaySplattingFlatWindows\RaySplattingFlatWindows"
-
-- Train the model with GaMeS for some small number of epochs (for example 100) on some dataset (for example: "drjohnson" from "Deep Blending" data sets) to obtain the *.ply file containing the pretrained Gaussians;
-- Run 3DGS on the same dataset to obtain the cameras.json file (as we found out the cameras.json returned by the GaMeS incorrect);
-- Copy the output file cameras.json to the dataset main directory;
-- Convert all of the files in the subdirectory "images" located in the dataset main directory to 24-bit *.bmp file format without changing their names;
+- Train the model with GaMeS for some small number of iterations (for example 100) on some Blender dataset (for example: "lego" from "NeRF synthetic" set);
+- Convert all of the files in the subdirectories: "train" and "test" located in the dataset main directory to 24-bit *.bmp file format without changing their names;
 - Copy the configuration file "config.txt" to the project's main directory. On our test system we copied it to the following directory:
+  ```plaintext
+  "C:\Users\<Windows username>\source\repos\REdiSplats\REdiSplats"
+  ```
+- In lines: 4 and 5 of the configuration file specify the location of the dataset main directory and the output GaMeS *.ply file obtained after short model pretraining (**Important!** The spherical harmonics degree used for pretraining and the target one specified in the line 7 of the config file don't have to match);
+- In lines: 13-15 of the configuration file specify the background color that matches the background color used for pretraining using the following formula:
+  
+  R' = (R + 0.5) / 256<br>
+  G' = (G + 0.5) / 256<br>
+  B' = (B + 0.5) / 256<br>
 
-"C:\Users\\\<Windows username>\source\repos\RaySplattingFlatWindows\RaySplattingFlatWindows"
-
-- In lines: 2 and 3 of the configuration file specify the location of the dataset main directory and the output GaMeS *.ply file obtained after short model pretraining;
-- Run the "RaySplattingFlatWindows" project from the Visual Studio IDE;
+  where R, G and B are the integer non-negative background color coordinates in the range 0-255.
+- Run the "REdiSplats" project from the Visual Studio IDE;
 
 # Scripts
 Scripts directory contains different scripts that allows to manipulate trained models.
