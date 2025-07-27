@@ -13,7 +13,7 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 
 ## Prerequisites:
 -----------------
-- Install Visual Studio 2019 Enterprise;
+- Install Visual Studio 2019 Enterprisee;
 - Install CUDA Toolkit 12.4.1;
 - Install NVIDIA OptiX SDK 8.0.0;
 
