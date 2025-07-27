@@ -39,7 +39,7 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 # Building the interactive Windows viewer / optimizer application
 
 - Create the new Windows Desktop Application project and name it "REdiSplats";
-- Remove the newly generated RaySplats.cpp file containing the code template;
+- Remove the newly generated REdiSplats.cpp file containing the code template;
 - In **Build Dependencies** -> **Build Customizations...** select the checkbox matching your installed CUDA version. On our test system, we had to select the following checkbox:
 
   **CUDA 12.4(.targets, .props)**
