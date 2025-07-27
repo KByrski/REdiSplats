@@ -9,70 +9,84 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 |--------------|--------------|--------------|
 | ![](assets/lego_blender_water.gif) | ![](assets/fox_up_down.gif) | ![](assets/glasses_shadow.gif) |
 
+# Features
+- Spherical harmonics support up to the degree **4**.
+- Interactive Windows viewer / optimizer application allowing to preview the trained model state in the real time.
+- Support for the **PLY** trained model output format.
+- Highly efficient pure Gaussian renderer (no embedding primitive mesh approximation).
+- Highly configurable optimizer based on the convenient text configuration file.
+- Support for both the **Blender** and **COLMAP** data sets (after some preprocessing by the GaMeS).
+- Built-in evaluation of the model and visualization to the *.bmp file with the configurable frequency.
 
+# Controls in the interactive Windows viewer / optimizer application
 
-## Prerequisites:
------------------
-- Install Visual Studio 2019 Enterprisee;
-- Install CUDA Toolkit 12.4.1;
-- Install NVIDIA OptiX SDK 8.0.0;
+<img src="assets/app_main_window.png">
 
-## Compiling the CUDA static library:
-------------------------------------
-- Create the new CUDA 12.4 Runtime project and name it "RaySplattingFlatCUDA";
-- Remove the newly created kernel.cu file with the code template;
-- Add all the files from the directory "RaySplattingFlatCUDA" to the project;
-- Change project's Configuration to "Release, x64";
-- Add OptiX "include" directory path to the project's Include Directories. On our test system, we had to add the following path:
+- **Double Left Click**: Toggle between the **static camera** and the **free roam** mode.
+- **Mouse Movement**: Rotate the camera in the **free roam** mode.
+- **W / S**: Move forward / backward.
+- **A / D**: Step left / right.
+- **Spacebar / C**: Move up / down.
+- **[ / ]**: Switch the camera to the previous / next training pose.
+- **Print Screen**: Make screenshot and save it to the 24-bit *.bmp file.
 
-"C:\ProgramData\NVIDIA Corporation\OptiX SDK 8.0.0\include"
+# Prerequisites:
 
-- In Properties -> Configuration Properties -> CUDA C/C++ -> Device -> Code Generation type the compute capability and microarchitecture version of your GPU. On our test system with RTX 4070 GPU we added "compute_89,sm_89";
-- In Properties -> Configuration Properties -> General -> Configuration Type select "Static library (.lib)";
-- For files: "shaders.cu" and "shadersMesh.cu" in Properties -> Configuration Properties -> CUDA C/C++ change the suffix of Compiler Output (obj/cubin) from ".obj" to ".ptx";
-- For files: "shaders.cu" and "shadersMesh.cu" in Properties -> Configuration Properties -> CUDA C/C++ -> NVCC Compilation Type select "Generate device-only .ptx file (-ptx)";
-- Make the following changes in the file kernel1.cu specifying the location of the compiled *.ptx shader files:
+- Visual Studio 2019 Enterprise;
+- CUDA Toolkit 12.4.1;
+- NVIDIA OptiX SDK 8.0.0;
 
-Line 256:
-FILE *f = fopen("<location of the compiled *.ptx shader files>/shaders.cu.ptx", "rb");
+# Building the interactive Windows viewer / optimizer application
 
-Line 265:
-f = fopen("<location of the compiled *.ptx shader files>/shaders.cu.ptx", "rb");
+- Create the new Windows Desktop Application project and name it "REdiSplats";
+- Remove the newly generated RaySplats.cpp file containing the code template;
+- In **Build Dependencies** -> **Build Customizations...** select the checkbox matching your installed CUDA version. On our test system, we had to select the following checkbox:
 
-Line 4558:
-FILE *f = fopen("<location of the compiled *.ptx shader files>/shadersMesh.cu.ptx", "rb");
-
-Line 4567:
-f = fopen("<location of the compiled *.ptx shader files>/shadersMesh.cu.ptx", "rb");
-
-On our test system, we used the following paths as the string literal passed to the fopen function:
-
-"C:/Users/\<Windows username>/source/repos/RaySplattingFlatCUDA/RaySplattingFlatCUDA/x64/Release/shaders.cu.ptx"
-<br>
-"C:/Users/\<Windows username>/source/repos/RaySplattingFlatCUDA/RaySplattingFlatCUDA/x64/Release/shadersMesh.cu.ptx"
-
-- Build the project;
-
-## Compiling the Windows interactive optimizer application:
------------------------------------------------------------
-- Create the new Windows Desktop Application project and name it "RaySplattingFlatWindows";
-- Remove the newly generated RaySplattingFlatWindows.cpp file with the code template;
-- Add all the files from the directory "RaySplattingFlatWindows" to the project;
-- Change project's Configuration to "Release, x64";
-- In Properties -> Configuration Properties -> Linker -> Input -> Additional Dependencies add new lines:
-
-"RaySplattingFlatCUDA.lib" <br>
-"cuda.lib" <br>
-"cudart.lib" <br>
-"cufft.lib" <br>
-
-- In Properties -> Configuration Properties -> Linker -> General -> Additional Library Directories add the "lib\x64" path of your CUDA toolkit. On our test system, we had to add the following path:
-
-"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\lib\x64"
-
-- In Properties -> Configuration Properties -> Linker -> General -> Additional Library Directories add the path of the directory containing your compiled CUDA static library. On our test system, we had to add the following path:
-
-"C:\Users\\\<Windows username>\source\repos\RaySplattingFlatCUDA\x64\Release"
+  **CUDA 12.4(.targets, .props)**
+  
+- Add all the files from the directory "REdiSplats" to the project;
+- In the project's Properties set **Configuration** to **"Release"** and **Platform** to **"x64"**;
+- In **Properties** -> **Configuration Properties** -> **CUDA C/C++** -> **Common** -> **Generate Relocatable Device Code** select **Yes (-rdc=true)**;
+- For file "shaders.cuh" in **Properties** -> **Configuration Properties** -> **General** -> **Item Type** select **"CUDA C/C++**;
+- For files: "shaders.cuh", "shaders_SH0.cu", "shaders_SH1.cu", "shaders_SH2.cu", "shaders_SH3.cu" and "shaders_SH4.cu" in **Properties** -> **Configuration Properties** -> **CUDA C/C++** -> **Common**:
+  - Change the suffix of **Compiler Output (obj/cubin)** from **".obj"** to **".ptx"**;
+  - In **Generate Relocatable Device Code** select **No**;
+  - In **NVCC Compilation Type** select **Generate device-only .ptx file (-ptx)"**;
+- In **Properties** -> **Configuration Properties** -> **VC++ Directories** -> **Include Directories** add OptiX "include" directory path. On our test system, we had to add the following path:
+  ```plaintext
+  "C:\ProgramData\NVIDIA Corporation\OptiX SDK 8.0.0\include"
+  ```
+- In **Properties** -> **Configuration Properties** -> **CUDA C/C++** -> **Device** -> **Code Generation** type the compute capability and microarchitecture version of your GPU. On our test system with RTX 4070 GPU we typed:
+  ```plaintext
+  "compute_89,sm_89"
+  ```
+- In **Properties** -> **Configuration Properties** -> **Linker** -> **Input** -> **Additional Dependencies** add three new lines containing:
+  ```plaintext
+  "cuda.lib"
+  ```
+  ```plaintext
+  "cudart.lib"
+  ```
+  ```plaintext
+  "cufft.lib"
+  ```
+- In each of two different blocks of code in file InitializeOptiXRenderer.cu:
+  ```plaintext
+  if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH0.cu.ptx", "rb");
+  else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH1.cu.ptx", "rb");
+  else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH2.cu.ptx", "rb");
+  else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH3.cu.ptx", "rb");
+  else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH4.cu.ptx", "rb");
+  ```
+  and
+  ```plaintext
+  if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH0.cu.ptx", "rt");
+  else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH1.cu.ptx", "rt");
+  else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH2.cu.ptx", "rt");
+  else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH3.cu.ptx", "rt");
+  else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH4.cu.ptx", "rt");
+  ```
+  replace the provided path with the path to the *.ptx compiled shaders files on your hdd.
 
 ## Training the first model:
 ----------------------------
