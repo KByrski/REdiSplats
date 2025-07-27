@@ -13,7 +13,7 @@ Krzysztof Byrski, Grzegorz Wilczyński, Weronika Smolak-Dyżewska, Piotr Borycki
 - Spherical harmonics support up to the degree **4**.
 - Interactive Windows viewer / optimizer application allowing to preview the trained model state in the real time.
 - Support for the **PLY** trained model output format.
-- Highly efficient pure Gaussian renderer (no embedding primitive mesh approximation).
+- Highly efficient renderer utilizing the built-in RT core ray-triangle intersection tests (thanks to embedding the Gaussians in the regular polygons).
 - Highly configurable optimizer based on the convenient text configuration file.
 - Support for both the **Blender** and **COLMAP** data sets (after some preprocessing by the GaMeS).
 - Built-in evaluation of the model and visualization to the *.bmp file with the configurable frequency.
