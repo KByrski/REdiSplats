@@ -2,7 +2,7 @@
 * ESSENTIAL                                                                                        *
 ****************************************************************************************************
 models/lego                   <Blender data directory path>
-models/lego/iter_100_SH_0.ply <Pretrained 3DGS model path>
+models/lego/iter_100_SH_0.ply <Pretrained GaMeS model path>
 blender                       <Data format>
 
 0                             <Start iteration>
