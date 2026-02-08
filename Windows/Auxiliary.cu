@@ -25,11 +25,11 @@ __global__ void GenerateInstances(
 
 	int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int wid = tid >> 5;
-	int number_of_warps = numberOfGaussians >> 5;
+	int number_of_warps = (numberOfGaussians + 31) >> 5;
 
 	// *** *** *** *** ***
 
-	if (wid <= number_of_warps) {
+	if (wid < number_of_warps) {
 		int index = ((tid < numberOfGaussians) ? tid : (numberOfGaussians - 1));
 
 		// *** *** *** *** ***
@@ -122,7 +122,7 @@ __global__ void GenerateInstances(
 
 	// *** *** *** *** ***
 
-	if (wid <= number_of_warps) {
+	if (wid < number_of_warps) {
 		int lane_id = threadIdx.x & 31;
 
 		float *base_address_1 = &instances[(tid & -32) * 20];
@@ -165,11 +165,11 @@ __global__ void ComputeAABBs(
 
 	int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
 	int wid = tid >> 5;
-	int number_of_warps = numberOfGaussians >> 5;
+	int number_of_warps = (numberOfGaussians + 31) >> 5;
 
 	// *** *** *** *** ***
 
-	if (wid <= number_of_warps) {
+	if (wid < number_of_warps) {
 		int index = ((tid < numberOfGaussians) ? tid : (numberOfGaussians - 1));
 
 		// *** *** *** *** ***
@@ -242,7 +242,7 @@ __global__ void ComputeAABBs(
 
 	// *** *** *** *** ***
 
-	if (wid <= number_of_warps) {
+	if (wid < number_of_warps) {
 		int lane_id = threadIdx.x & 31;
 
 		float *base_address_1 = &AABBs[(tid & -32) * 6];

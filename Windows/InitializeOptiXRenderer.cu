@@ -98,11 +98,11 @@ bool InitializeOptiXRenderer(
 
 	FILE *f;
 
-	if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH0.cu.ptx", "rb");
-	else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH1.cu.ptx", "rb");
-	else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH2.cu.ptx", "rb");
-	else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH3.cu.ptx", "rb");
-	else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH4.cu.ptx", "rb");
+	if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH0.cu.ptx", "rb");
+	else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH1.cu.ptx", "rb");
+	else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH2.cu.ptx", "rb");
+	else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH3.cu.ptx", "rb");
+	else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH4.cu.ptx", "rb");
 
 	fseek(f, 0, SEEK_END);
 	int ptxCodeSize = ftell(f);
@@ -112,11 +112,11 @@ bool InitializeOptiXRenderer(
 	char *buffer = (char *)malloc(sizeof(char) * (ptxCodeSize + 1));
 	ptxCode[0] = 0; // !!! !!! !!!
 
-	if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH0.cu.ptx", "rt");
-	else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH1.cu.ptx", "rt");
-	else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH2.cu.ptx", "rt");
-	else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH3.cu.ptx", "rt");
-	else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplats/REdiSplats/x64/Release/shaders_SH4.cu.ptx", "rt");
+	if      constexpr (SH_degree == 0) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH0.cu.ptx", "rt");
+	else if constexpr (SH_degree == 1) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH1.cu.ptx", "rt");
+	else if constexpr (SH_degree == 2) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH2.cu.ptx", "rt");
+	else if constexpr (SH_degree == 3) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH3.cu.ptx", "rt");
+	else if constexpr (SH_degree == 4) f = fopen("C:/Users/pc/source/repos/REdiSplatsSH/REdiSplatsSH/x64/Release/shaders_SH4.cu.ptx", "rt");
 
 	fgets(buffer, ptxCodeSize + 1, f);
 	while (!feof(f)) {
@@ -147,6 +147,7 @@ bool InitializeOptiXRenderer(
 	#endif
 	pipelineCompileOptions.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 	pipelineCompileOptions.pipelineLaunchParamsVariableName = "optixLaunchParams";
+	pipelineCompileOptions.usesPrimitiveTypeFlags = OPTIX_PRIMITIVE_TYPE_FLAGS_TRIANGLE;
 
 	OptixModule module;
 	error_OptiX = optixModuleCreate(
