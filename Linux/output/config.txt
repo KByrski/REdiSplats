@@ -1,0 +1,123 @@
+****************************************************************************************************
+* ESSENTIAL                                                                                        *
+****************************************************************************************************
+models/lego                   <Blender data directory path>
+models/lego/iter_100_SH_0.ply <Pretrained GaMeS model path>
+blender                       <Data format>
+
+0                             <Start iteration>
+128000                        <End iteration>
+
+4                             <Spherical harmonics degree>
+
+0.001953125                   <Background color R component> 0.001953125 0.998046875
+0.001953125                   <Background color G component>
+0.001953125                   <Background color B component>
+
+****************************************************************************************************
+* PERFORMANCE                                                                                      *
+****************************************************************************************************
+8       <Number of sides of the polygon approximating each of the Gaussians>
+0.00001 <Epsilon value set as the Gaussians scale parameter on the OX axis>
+
+11.3449 <Chi-square squared radius for the Gaussian ellipsoid of confidence>
+0.0001  <Ray termination T threshold>
+0.01    <Ray termination T threshold for inference>
+-1.0986 <Opacity threshold for Gauss removal>
+512     <Maximum number of Gaussians per ray>
+
+100     <Densification frequency>
+400     <Densification start iteration>
+16000   <Densification end iteration>
+350000  <Maximum number of Gaussians per model threshold>
+
+0.00016 <mu gradient norm threshold for densification>
+0.005   <s norm threshold for Gaussian split streategy>
+1.6     <Split ratio for Gaussian split strategy>
+
+0.0005  <Minimum s norm threshold for Gauss removal>
+0.0001  <Minimum s coefficients clipping threshold>
+0.05    <Maximum s norm threshold for Gauss removal>
+
+0.2     <Lambda parameter for the cost function>
+
+****************************************************************************************************
+* OUTPUT                                                                                           *
+****************************************************************************************************
+1000 <Model parameters saving frequency>
+-1   <Model parameters saving iteration modulo frequency>
+
+1000 <PLY file saving frequency>
+-1   <PLY file saving iteration modulo frequency>
+
+Yes  <Model evaluation on startup for train data set>
+1000 <Model evaluation frequency for train data set>
+0    <Model evaluation iteration for train data set modulo frequency>
+Yes  <Model evaluation on finish for train data set>
+
+Yes  <Model evaluation on startup for test data set>
+1000 <Model evaluation frequency for test data set>
+0    <Model evaluation iteration for test data set modulo frequency>
+Yes  <Model evaluation on finish for test data set>
+
+No   <Model visualization on startup for train data set>
+1000 <Model visualization frequency for train data set>
+-1   <Model visualization iteration for train data set modulo frequency>
+No   <Model visualization on finish for train data set>
+
+No   <Model visualization on startup for test data set>
+1000 <Model visualization frequency for test data set>
+-1   <Model visualization iteration for test data set modulo frequency>
+No   <Model visualization on finish for test data set>
+
+****************************************************************************************************
+* LEARNING RATES                                                                                   *
+****************************************************************************************************
+0.005        <Learning rate for Gaussian spherical harmonics of degree 0>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian Gaussian spherical harmonics of degree 0>
+0.001        <Final value of learning rate for Gaussian spherical harmonics of degree 0>
+
+3200         <Spherical harmonics of degree 1 activation iteration>
+0.0003125    <Learning rate for Gaussian spherical harmonics of degree 1>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian Gaussian spherical harmonics of degree 1>
+0.0000625    <Final value of learning rate for Gaussian spherical harmonics of degree 1> 
+
+6400         <Spherical harmonics of degree 2 activation iteration>
+0.0003125    <Learning rate for Gaussian spherical harmonics of degree 2>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian Gaussian spherical harmonics of degree 2>
+0.0000625    <Final value of learning rate for Gaussian spherical harmonics of degree 2>
+
+9600         <Spherical harmonics of degree 3 activation iteration>
+0.0003125    <Learning rate for Gaussian spherical harmonics of degree 3>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian Gaussian spherical harmonics of degree 3>
+0.0000625    <Final value of learning rate for Gaussian spherical harmonics of degree 3>
+
+12800        <Spherical harmonics of degree 4 activation iteration>
+0.0003125    <Learning rate for Gaussian spherical harmonics of degree 4>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian Gaussian spherical harmonics of degree 4>
+0.0000625    <Final value of learning rate for Gaussian spherical harmonics of degree 4>
+
+0.05         <Learning rate for Gaussian opacities>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian opacities>
+0.05         <Final value of learning rate for Gaussian opacities>
+
+0.0005       <Learning rate for Gaussian means>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian means>
+0.00000306   Final value of learning rate for Gaussian means>
+
+0.00125      <Learning rate for Gaussian scales>
+0            <Exponential decay coefficient for learning rate for Gaussian scales>
+0.00125      <Final value of learning rate for Gaussian scales>
+
+0.01         <Learning rate for Gaussian quaternions>
+-0.000086643 <Exponential decay coefficient for learning rate for Gaussian quaternions>
+0.001        <Final value of learning rate for Gaussian quaternions>
+
+****************************************************************************************************
+* MEMORY MANAGEMENT                                                                                *
+****************************************************************************************************
+1.5 <Temporary arrays growth factor (*)>
+
+****************************************************************************************************
+
+(*) The parameter takes the values from the range (1, 2]. The values smaller than 2 are unsafe. Use at your own risk to reduce the memory overhead only if you are sure that during each of the densification iterations #Gaussians_after_densification <= #Gaussians_before_densification * parameter.
